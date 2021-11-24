@@ -26,8 +26,9 @@ function App(props) {
   const handleRemoveFromCart = (data) => {
     let addItemNo = store.getState().reducer.cartItemNo;
     let arr = store.getState().reducer.cartItems.filter(ele => data.id !== ele.id);
-    let length = store.getState().reducer.cartItems.filter(ele => data.id === ele.id);
-    addItemNo = addItemNo - 1;
+    // console.log(store.getState().reducer.cartItems.filter(ele => data.id === ele.id).length)
+    let len = store.getState().reducer.cartItems.filter(ele => data.id === ele.id).length
+    addItemNo = addItemNo - len;
     addItemNo = addItemNo > 0 ? addItemNo : 0;
     store.dispatch(addToCart(arr, addItemNo));
     setItemNo(addItemNo);
@@ -50,7 +51,7 @@ function App(props) {
 
   return (
     <Router history={history}>
-      <Navbar cartItemNo={store.getState().reducer.cartItemNo} {...props} />
+      <Navbar cartItemNo={itemNo} {...props} />
       <Container maxWidth="lg">
         <Switch>
           <Route exact path="/" >
@@ -60,7 +61,9 @@ function App(props) {
             />
           </Route>
           <Route exact path="/cart" >
-            <Cart {...props} cartItems={store.getState().reducer.cartItems} removeFromCart={handleRemoveFromCart} />
+            <Cart {...props}
+              cartItems={items}
+              removeFromCart={handleRemoveFromCart} />
           </Route>
           <Route exact path="/product_details/:id">
             <ProductDetails {...props} addToCart={handleAddToCart} />
