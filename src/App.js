@@ -12,20 +12,26 @@ import { addToCart } from './store/actions'
 const history = createBrowserHistory();
 function App(props) {
   const store = useStore();
+  const [itemNo, setItemNo] = useState(0);
+  const [items, setItems] = useState([]);
   const handleAddToCart = (data) => {
-
-    let addItemNo = store.getState().reducer.itemNo;
+    let addItemNo = store.getState().reducer.cartItemNo;
     addItemNo = addItemNo + 1;
-    let arr = store.getState().reducer.items;
+    let arr = store.getState().reducer.cartItems;
     arr.push(data);
     store.dispatch(addToCart(arr, addItemNo));
+    setItemNo(addItemNo);
+    setItems(arr);
   }
   const handleRemoveFromCart = (data) => {
-    let addItemNo = store.getState().reducer.itemNo;
+    let addItemNo = store.getState().reducer.cartItemNo;
+    let arr = store.getState().reducer.cartItems.filter(ele => data.id !== ele.id);
+    let length = store.getState().reducer.cartItems.filter(ele => data.id === ele.id);
     addItemNo = addItemNo - 1;
     addItemNo = addItemNo > 0 ? addItemNo : 0;
-    let arr = store.getState().reducer.items.filter(ele => data.id !== ele.id);
     store.dispatch(addToCart(arr, addItemNo));
+    setItemNo(addItemNo);
+    setItems(arr);
   }
 
   useEffect(() => {
@@ -33,8 +39,9 @@ function App(props) {
       let serializedState = localStorage.getItem('state');
       if (serializedState === null) return undefined
       let state = JSON.parse(serializedState);
-
       store.dispatch(addToCart(state.reducer.cartItems, state.reducer.cartItemNo));
+      setItemNo(state.reducer.cartItemNo)
+      setItems(state.reducer.cartItems)
     } catch (e) {
 
     }
@@ -43,7 +50,7 @@ function App(props) {
 
   return (
     <Router history={history}>
-      <Navbar cartItemNo={props.itemNo} {...props} />
+      <Navbar cartItemNo={store.getState().reducer.cartItemNo} {...props} />
       <Container maxWidth="lg">
         <Switch>
           <Route exact path="/" >
@@ -53,7 +60,7 @@ function App(props) {
             />
           </Route>
           <Route exact path="/cart" >
-            <Cart {...props} cartItems={props.items} removeFromCart={handleRemoveFromCart} />
+            <Cart {...props} cartItems={store.getState().reducer.cartItems} removeFromCart={handleRemoveFromCart} />
           </Route>
           <Route exact path="/product_details/:id">
             <ProductDetails {...props} addToCart={handleAddToCart} />
